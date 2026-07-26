@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Order Information</h2>
+<p><strong>Receipt Code:</strong> {{ order[1] }}</p>
+<p><strong>Customer:</strong> {{ order[2] }}</p>
+<p><strong>Date:</strong> {{ order[3] }}</p>
+<p><strong>Total:</strong>Rp {{ "{:,.0f}".format(order[4]) }}</p><br><br>
+
+<h2>Add Product</h2>
+<form action="{{ url_for('add_order_item', id=order[0]) }}" method="POST">
+    <label>Product:</label>
+    <select name="product_id" required>
+        {% for product in products%}
+            <option value="{{ product[0] }}">{{ product[1] }}</option>
+        {% endfor %}
+    </select><br><br>
+    <label>Selling Price:</label><br><br>
+    <label>Quantity:</label><input type="number" name="quantity" min="1" required><br><br>
+    <button type="submit">Add Product</button>
+</form><br><br>
+
+<h2>Current Items</h2>
+<table border="1">
+    <tr>
+        <th>Product</th>
+        <th>Quantity</th>
+        <th>Price</th>
+        <th>Subtotal</th>
+        <th>Actions</th>
+    </tr>
+    {% for item in order_items %}
+    <tr>
+        <td>{{ item[1] }}</td>
+        <td>{{ item[2] }}</td>
+        <td>Rp {{ "{:,.0f}".format(item[3]) }}</td>
+        <td>Rp {{ "{:,.0f}".format(item[2] * item[3]) }}</td>
+        <td><a href="{{ url_for('delete_order_item', id=item[0]) }}">Delete</a></td>
+    </tr>
+    {% endfor %}
+</table><br><br>
+<h2>Total: Rp {{ "{:,.0f}".format(order[4]) }}</h2>
+{% endblock %}

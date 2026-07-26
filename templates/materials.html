@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>Materials</h1>
+<form action="/add_material" method="POST">
+    <label>Name</label>
+    <input type="text" name="name" required><br><br>
+    <label>Unit</label>
+    <input type="text" name="unit" required><br><br>
+    <label>Quantity</label>
+    <input type="number" step="0.01" name="quantity" required><br><br>
+    <label>Price</label>
+    <input type="number" name="price" required><br><br>
+    <button type="submit">Add Material</button>
+</form>
+<h2>Current Materials</h2>
+<table border="1" cellpadding="8">
+    <tr>
+        <th>ID</th>
+        <th>Name</th>
+        <th>Unit</th>
+        <th>Quantity</th>
+        <th>Price (Rp)</th>
+        <th>Action</th>
+    </tr>
+    {% for material in materials %}
+    <tr>
+        <td>{{ material[0] }}</td>
+        <td>{{ material[1] }}</td>
+        <td>{{ material[2] }}</td>
+        <td>{{ material[3] }}</td>
+        <td>Rp {{ "{:,.0f}".format(material[4]) }}</td>
+        <td>
+            <a href="/edit_material/{{ material[0] }}">Edit</a>
+            |
+            <a href="/delete_material/{{ material[0] }}">Delete</a>
+        </td>
+    </tr>
+    {% endfor %}
+</table>
+{% endblock %}

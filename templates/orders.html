@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>Orders</h1>
+<form action="{{ url_for('create_order') }}" method="POST">
+    <label>Receipt Code</label>
+    <input type="text" name="receipt_code" required><br><br>
+    <label>Customer</label>
+    <input type="text" name="customer_name" required><br><br>
+    <label>Date</label>
+    <input type="date" name="order_date" required><br><br>
+    <button type="submit">Create Order</button>
+</form>
+<h2>Current Orders</h2>
+<table border="1">
+    <tr>
+        <th>ID</th>
+        <th>Receipt Code</th>
+        <th>Customer</th>
+        <th>Date</th>
+        <th>Total</th>
+        <th>Action</th>
+    </tr>
+    <!-- loop -->
+    {% for order in orders %}
+    <tr>
+        <td>{{ order[0] }}</td>
+        <td>{{ order[1] }}</td>
+        <td>{{ order[2] }}</td>
+        <td>{{ order[3] }}</td>
+        <td>Rp {{ "{:,.0f}".format(order[4]) }}</td>
+        <td>
+            <a href="{{ url_for('manage_order', id=order[0]) }}">Manage</a>
+        </td>
+    </tr>
+    {% endfor %}
+</table>
+{% endblock %}

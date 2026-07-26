@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block content %}
+<p>Are you sure you want to <strong>Delete</strong>:</p>
+<p>
+    {{ bom[1] }}<br>
+    {{ bom[2] }}<br>
+    {{ bom[4] }} {{ bom[3] }}<br>
+</p>
+<form action="{{ url_for('confirm_delete_bom', id=bom[0]) }}" method="POST">
+    <button type="submit">Yes, Delete</button>
+</form>
+<a href="{{ url_for('bill_of_materials') }}">Cancel</a>
+{% endblock %}

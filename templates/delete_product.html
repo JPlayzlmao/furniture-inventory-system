@@ -1,0 +1,8 @@
+{% extends "base.html" %}
+{% block content %}
+<p>Are you sure you want to delete <strong>{{ product[1] }}</strong>?</p>
+<form action="{{ url_for('confirm_delete_product', id=product[0]) }}" method="POST">
+    <button type="submit">Yes, Delete</button>
+</form>
+<a href="{{ url_for('products') }}">Cancel</a>
+{% endblock %}

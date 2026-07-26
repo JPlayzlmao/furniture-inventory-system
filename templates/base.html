@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inventory System</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <header class="header">
+        <h1>Inventory Management System</h1>
+    </header>
+    <div class="container">
+        <aside class="sidebar">
+            <a href="{{ url_for('home') }}">Dashboard</a>
+            <a href="{{ url_for('products') }}">Products</a>
+            <a href="{{ url_for('materials') }}">Materials</a>
+            <a href="{{ url_for('bill_of_materials') }}">Bill of Materials</a>
+            <a href="{{ url_for('categories') }}">Categories</a>
+            <a href="{{ url_for('orders') }}">Orders</a>
+            <a href="{{ url_for('history') }}">History</a>
+        </aside>
+        <main class="content">
+            {% block content %}
+            {% endblock %}
+        </main>
+    </div>
+</body>
+</html>
