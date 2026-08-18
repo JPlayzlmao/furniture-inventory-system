@@ -199,6 +199,9 @@ def confirm_delete_material(id):
 
 @app.route("/bill_of_materials")
 def bill_of_materials():
+    selected_product = request.args.get("product_id", type=int)
+    print("Selected product:", selected_product)
+
     connection = sqlite3.connect("inventory.db")
     cursor = connection.cursor()
 
@@ -220,7 +223,7 @@ def bill_of_materials():
 
     connection.close()
 
-    return render_template("bill_of_materials.html",products=products,materials=materials,bom=bom)
+    return render_template("bill_of_materials.html",products=products,materials=materials,bom=bom,selected_product=selected_product)
 
 @app.route("/add_bom",methods=["POST"])
 def add_bom():
@@ -238,7 +241,7 @@ def add_bom():
     connection.commit()
     connection.close()
 
-    return redirect(url_for("bill_of_materials"))
+    return redirect(url_for("bill_of_materials",product_id=product_id))
 
 @app.route("/edit_bom/<int:id>")
 def edit_bom(id):
@@ -370,6 +373,31 @@ def manage_order(id):
 
     return render_template("manage_order.html",order=order,products=products,order_items=order_items)
 
+@app.route("/delete_order/<int:id>")
+def delete_order(id):
+    connection = sqlite3.connect("inventory.db")
+    cursor = connection.cursor()
+
+    cursor.execute("""SELECT * FROM orders WHERE id = ?""",(id,))
+    order = cursor.fetchone()
+
+    connection.close()
+
+    return render_template("delete_order.html", order=order)
+
+@app.route("/confirm_delete_order/<int:id>", methods=["POST"])
+def confirm_delete_order(id):
+    connection = sqlite3.connect("inventory.db")
+    cursor = connection.cursor()
+
+    cursor.execute("""DELETE FROM order_items WHERE order_id = ?""",(id,))
+    cursor.execute("""DELETE FROM orders WHERE id = ?""",(id,))
+
+    connection.commit()
+    connection.close()
+
+    return redirect(url_for("orders"))
+
 @app.route("/add_order_item/<int:id>",methods=["POST"])
 def add_order_item(id):
     product_id = request.form["product_id"]
@@ -387,6 +415,9 @@ def add_order_item(id):
     """,(id,product_id,quantity,selling_price))
 
     connection.commit()
+
+    update_order_total(id)
+
     connection.close()
 
     return redirect(url_for("manage_order", id=id))
@@ -415,27 +446,77 @@ def confirm_delete_order_item(id):
     cursor = connection.cursor()
 
     cursor.execute("""SELECT order_id FROM order_items WHERE id = ?""",(id,))
-    order = cursor.fetchone()
-    order_id = order[0]
+    result = cursor.fetchone()
+    order_id = result[0]
 
     cursor.execute("""DELETE FROM order_items WHERE id = ?""",(id,))
 
     connection.commit()
+
+    update_order_total(order_id)
+
     connection.close()
 
     return redirect(url_for("manage_order",id=order_id))
 
-@app.route("/update_order_total/<int:id>")
+@app.route("/edit_order_item/<int:id>")
+def edit_order_item(id):
+    connection = sqlite3.connect("inventory.db")
+    cursor = connection.cursor()
+
+    cursor.execute("""
+        SELECT order_items.id, products.name ,order_items.quantity, order_items.selling_price
+        FROM order_items
+        JOIN products
+            ON order_items.product_id = products.id
+        WHERE order_items.id = ?
+    """,(id,))
+    item = cursor.fetchone()
+
+    connection.close()
+    
+    return render_template("edit_order_item.html",item=item)
+
+@app.route("/update_order_item/<int:id>", methods=["POST"])
+def update_order_item(id):
+    quantity = int(request.form["quantity"])
+
+    connection = sqlite3.connect("inventory.db")
+    cursor = connection.cursor()
+
+    cursor.execute("""
+        SELECT order_id FROM order_items WHERE id = ?
+    """,(id,))
+    result = cursor.fetchone()
+    order_id = result[0]
+
+    cursor.execute("""
+        UPDATE order_items SET quantity = ? WHERE id = ?    
+    """,(quantity,id))
+
+    connection.commit()
+
+    update_order_total(order_id)
+
+    connection.close()
+
+    return redirect(url_for("manage_order"))
+
 def update_order_total(id):
     connection = sqlite3.connect("inventory.db")
     cursor = connection.cursor()
 
     cursor.execute("""
-        SELECT selling_price FROM order_items WHERE order_id = ?
+        SELECT SUM(quantity * selling_price) FROM order_items WHERE order_id = ?
     """,(id,))
-    total = cursor.fetchall()
+    total = cursor.fetchone()[0] or 0
 
-    return
+    cursor.execute("""
+        UPDATE orders SET total = ? WHERE id = ?
+    """,(total,id))
+
+    connection.commit()
+    connection.close()
 
 if __name__ == "__main__":
     app.run(debug=True)

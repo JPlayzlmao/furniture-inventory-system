@@ -5,7 +5,11 @@
     <label>Select Product</label>
     <select name="product_id" required>
         {% for product in products%}
-        <option value="{{ product[0] }}">{{ product[1] }}</option>
+        <option value="{{ product[0] }}"
+            {% if product[0] == selected_product %}
+                selected
+            {% endif %}
+        >{{ product[1] }}</option>
         {% endfor %}
     </select><br><br>
     <label>Select Material</label>

@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block content%}
+
+<p>Are you sure you want to <strong>Delete</strong> this order?</p>
+<p>
+    Receipt Code: {{ order[1] }}<br>
+    Customer: {{ order[2] }}<br>
+    Date: {{ order[3] }}<br>
+</p>
+<form action="{{ url_for('confirm_delete_order', id=order[0]) }}" method="POST">
+    <button type="submit">Yes, Delete</button>
+</form>
+
+<a href="{{ url_for('manage_order', id=order[0]) }}">Cancel</a>
+
+{% endblock%}
